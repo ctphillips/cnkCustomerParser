@@ -9,6 +9,7 @@ from datetime import datetime
 from collections import OrderedDict
 
 import customers
+import customersQBO
 
 #check to be sure that the script was called with a file to parse.
 if len(argv) < 2:
@@ -37,21 +38,71 @@ with open(current_file, 'r') as csv_file:
     #     print(colName)
 
     entryCount = 0
+    #create a list of the orderedDict items from the csv reader
+    orderedDictList = []
     for entry in csv_reader:
     #     #print(entry['Child Name'], entry['Active in Drop-In'])
         entryCount+=1
-        if(entryCount == 1):
-            print(entry)
+        # if(entryCount == 1):
+        #     print(entry)
+        orderedDictList.append(entry)
     print("There are {} entries in the file".format(entryCount))
 
-    #Make sure the header has the expected column headers
-    isHeaderOkay, errorHeader = customers.verifyHeader(header)
+#Make sure the header has the expected column headers
+isHeaderOkay, errorHeader = customers.verifyHeader(header)
 
-    if isHeaderOkay:
-        print("Header in file is as expected.")
-    else:
-        print("Header in input file has the following diffrence(s): {}"
-            .format(errorHeader))
+if isHeaderOkay:
+    print("Header in file is as expected.")
+else:
+    print("Header in input file has the following diffrence(s): {}"
+        .format(errorHeader))
 
-# for customer in customers.expectedHeader:
-#     print(customer)
+modifiedOrderedDictList = []
+
+#build a list of OrderedDict from the Employee Dojo export
+#using the necessary keys for the QBO Customer Import Template
+for row in orderedDictList:
+    ordered_dict = OrderedDict() #make a new orderdict obj
+    ordered_dict.fieldnames = customersQBO.expectedHeader
+    ordered_dict['Name'] = row['First Parent Name']
+    ordered_dict['Company'] = ''
+    ordered_dict['Customer Type'] = ''
+    ordered_dict['Email'] = row['First Parent Email']
+    ordered_dict['Phone'] = row['First Parent Phone']
+    ordered_dict['Mobile'] = ''
+    ordered_dict['Fax'] = ''
+    ordered_dict['Website'] = ''
+    ordered_dict['Street'] = row['First Parent Address']
+    ordered_dict['City'] = row['First Parent City']
+    ordered_dict['State'] = row['First Parent State']
+    ordered_dict['ZIP'] = row['First Parent Zipcode']
+    ordered_dict['Country'] = ''
+    ordered_dict['Fax'] = ''
+    ordered_dict['Opening Balance'] = 0
+    ordered_dict['Date'] = row['Customer Since']
+    ordered_dict['Resale Number'] = 0
+    modifiedOrderedDictList.append(ordered_dict)
+
+# for row in modifiedOrderedDictList:
+    #print(row)
+modifiedOrderedDictListWithoutDuplicates = customersQBO.removeDuplicates(modifiedOrderedDictList)
+
+entriesWithoutDuplicates = 0
+for entry in modifiedOrderedDictListWithoutDuplicates:
+    entriesWithoutDuplicates +=1
+    if(entriesWithoutDuplicates != 0):
+        print(entry["Name"])
+print("Number of entries after duplicates have been removed is {}".format(entriesWithoutDuplicates))
+
+
+#send the processed list to a csv file
+outfile = infile.split(".")[0] + 'QBO' + '.csv'
+outfile_path = (os.path.join(os.path.expanduser('~'), 'Projects',
+            'CodeNinjas','cnkCustomerParser', 'data',outfile))
+print(outfile_path)
+with open(outfile_path, 'w') as f:
+    fWriter = csv.DictWriter(f, fieldnames = customersQBO.expectedHeader,
+        delimiter=',')
+    fWriter.writeheader() #put the column headers in the csv
+    for row in modifiedOrderedDictListWithoutDuplicates:
+        fWriter.writerow(row)
