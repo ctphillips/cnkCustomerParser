@@ -50,6 +50,7 @@ with open(current_file, 'r') as csv_file:
 
 #Make sure the header has the expected column headers
 isHeaderOkay, errorHeader = customers.verifyHeader(header)
+campOnlyCustomersList = customers.findCampOnlyCustomers(orderedDictList)
 
 if isHeaderOkay:
     print("Header in file is as expected.")
@@ -90,19 +91,31 @@ modifiedOrderedDictListWithoutDuplicates = customersQBO.removeDuplicates(modifie
 entriesWithoutDuplicates = 0
 for entry in modifiedOrderedDictListWithoutDuplicates:
     entriesWithoutDuplicates +=1
-    if(entriesWithoutDuplicates != 0):
-        print(entry["Name"])
+    # if(entriesWithoutDuplicates != 0):
+    #     print(entry["Name"])
 print("Number of entries after duplicates have been removed is {}".format(entriesWithoutDuplicates))
 
 
-#send the processed list to a csv file
-outfile = infile.split(".")[0] + 'QBO' + '.csv'
-outfile_path = (os.path.join(os.path.expanduser('~'), 'Projects',
-            'CodeNinjas','cnkCustomerParser', 'data',outfile))
-print(outfile_path)
-with open(outfile_path, 'w') as f:
+#send the processed list to a csv file for importing into QBO
+outfileForQBOCustomers = infile.split(".")[0] + 'QBO' + '.csv'
+outfilePathQBO = (os.path.join(os.path.expanduser('~'), 'Projects',
+            'CodeNinjas','cnkCustomerParser', 'data', outfileForQBOCustomers))
+print(outfilePathQBO)
+with open(outfilePathQBO, 'w') as f:
     fWriter = csv.DictWriter(f, fieldnames = customersQBO.expectedHeader,
         delimiter=',')
     fWriter.writeheader() #put the column headers in the csv
     for row in modifiedOrderedDictListWithoutDuplicates:
+        fWriter.writerow(row)
+
+#send the processed list to a csv file for Camp Only Ninjas
+outfileForCampOnly = infile.split(".")[0] + 'CampOnly' + '.csv'
+outfilePathForCampOnly = (os.path.join(os.path.expanduser('~'), 'Projects',
+            'CodeNinjas','cnkCustomerParser', 'data', outfileForCampOnly))
+print(outfilePathForCampOnly)
+with open(outfilePathForCampOnly, 'w') as f:
+    fWriter = csv.DictWriter(f, fieldnames = customers.campHeader,
+        delimiter=',')
+    fWriter.writeheader() #put the column headers in the csv
+    for row in campOnlyCustomersList:
         fWriter.writerow(row)
