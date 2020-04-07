@@ -57,6 +57,7 @@ if isHeaderOkay:
 else:
     print("Header in input file has the following diffrence(s): {}"
         .format(errorHeader))
+    exit(1)
 
 modifiedOrderedDictList = []
 
