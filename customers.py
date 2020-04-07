@@ -7,7 +7,7 @@ expectedHeader = ['Child Name', 'Current Belt', 'Date Belt Received',
     'Second Parent Name', 'Second Parent Email','Second Parent Phone',
     'Second Parent Address', 'Second Parent City','Second Parent State',
     'Second Parent Zipcode', 'Customer Since', 'Active in Drop-In',
-    'Date Drop-In Expires', 'Product', 'Plan', 'Events']
+    'Date Drop-In Expires', 'Program', 'Product', 'Plan', 'Events']
 
 campHeader = ['Child Name', 'First Parent Name', 'First Parent Email',
     'First Parent Phone', 'First Parent Address', 'First Parent City',
