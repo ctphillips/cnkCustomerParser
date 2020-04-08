@@ -81,7 +81,8 @@ for row in orderedDictList:
     ordered_dict['Country'] = ''
     ordered_dict['Fax'] = ''
     ordered_dict['Opening Balance'] = 0
-    ordered_dict['Date'] = row['Customer Since']
+    date_object = datetime.strptime(row['Customer Since'],"%m-%d-%Y")
+    ordered_dict['Date'] = date_object.strftime("%Y-%m-%d")
     ordered_dict['Resale Number'] = 0
     modifiedOrderedDictList.append(ordered_dict)
 
