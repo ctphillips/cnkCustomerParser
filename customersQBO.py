@@ -3,8 +3,17 @@ expectedHeader = ['Name', 'Company', 'Customer Type','Email', 'Phone',
     'Opening Balance', 'Date', 'Resale Number']
 
 expectedExportHeader = ['Customer', 'Company', 'Street Address', 'City',
-    'State', 'Country', 'ZIP', 'Phone', 'Email', 'Attachments',
+    'State', 'Country', 'Zip', 'Phone', 'Email', 'Attachments',
     'Open Balance', 'Notes']
+
+def verifyHeader(headerToVerify):
+    isHeaderOkay = True
+    errorList = []
+    for headerE, headerV in zip(expectedExportHeader, headerToVerify):
+        if headerV != headerE:
+            isHeaderOkay = False
+            errorList.append(headerV)
+    return isHeaderOkay, errorList
 
 def removeDuplicates(listOfOrderedDict):
     listWithoutDuplicates = []

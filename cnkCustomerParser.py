@@ -68,7 +68,6 @@ with open(current_file, 'r') as csv_file:
 
 #Make sure the header has the expected column headers
 isHeaderOkay, errorHeader = customers.verifyHeader(header)
-campOnlyCustomersList = customers.findCampOnlyCustomers(orderedDictList)
 
 if isHeaderOkay:
     print("Header in file is as expected.")
@@ -77,16 +76,22 @@ else:
         .format(errorHeader))
     exit(1)
 
+campOnlyCustomersList = customers.findCampOnlyCustomers(orderedDictList)
+
 if isQBO:
-    with open(qbo_file, 'r') as qboCsv_file:
+    #needed to add 'utf-8-sig' to avoid reading in the byte order mark (BOM)
+    #when importing the csv file exported from QBO, not doing this we would
+    #read a leading /ufeff in the first element/header value
+    with open(qbo_file, 'r', encoding='utf-8-sig') as qboCsv_file:
         qboCsv_reader = csv.DictReader(qboCsv_file)
         #print(type(csv_reader))
         #print(csv_reader.fieldnames)
         qboHeader = qboCsv_reader.fieldnames
-        print("There are {} columns in the file.".format(len(qboHeader)))
-        #print("The type of the fieldnames is {}".format(type(header)))
-        # for colName in header:
-        #     print(colName)
+        #print("There are {} columns in the file.".format(len(qboHeader)))
+        #print("The type of the fieldnames is {}".format(type(qboHeader)))
+        # print(qboHeader)
+        # for colName in qboHeader:
+        #      print(colName)
 
         qboEntryCount = 0
         #create a list of the orderedDict items from the csv reader
@@ -98,8 +103,15 @@ if isQBO:
             #     print(entry)
             qboOrderedDictList.append(entry)
         print("There are {} entries in the QBO file".format(qboEntryCount))
+    #Make sure the qbo header has the expected column headers
+    isQBOHeaderOkay, errorQBOHeader = customersQBO.verifyHeader(qboHeader)
 
-exit(1)
+    if isQBOHeaderOkay:
+        print("Header in QBO file is as expected.")
+    else:
+        print("Header in input QBO file has the following diffrence(s): {}"
+            .format(errorQBOHeader))
+        exit(1)
 
 modifiedOrderedDictList = []
 
