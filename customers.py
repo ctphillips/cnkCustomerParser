@@ -49,7 +49,7 @@ def findCampOnlyCustomers(listToSearch):
     for row in listToSearchWithoutDuplicates:
         tempOrderedDict = OrderedDict()
         if(not (row['Active in Drop-In'] == 'Yes')):
-            print("{} {} ".format(listIndex, row['Child Name']))
+            #print("{} {} ".format(listIndex, row['Child Name']))
             if(not(row['Events'] == "") and (row['Plan'] == "")): #if the Events is not empty, camp or PNO
                 numberOfCampOnlyKids += 1
                 for col in campHeader: #grab the columns we want in the output
