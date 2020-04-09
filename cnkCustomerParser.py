@@ -154,8 +154,10 @@ print("Number of entries in Employee Dojo List after duplicates have been remove
 if isQBO:
     # for entry in qboOrderedDictList:
     #     print(entry['Customer'])
-    finalOrderedDictList = customersQBO.removeMatches(qboOrderedDictList,
-        modifiedOrderedDictListWithoutDuplicates)
+    finalOrderedDictList = customersQBO.removeMatchesFromEmployeeDojo(
+        qboOrderedDictList,modifiedOrderedDictListWithoutDuplicates)
+    qboFinalOrderedDictList = customersQBO.removeMatchesFromQBO(
+        qboOrderedDictList,modifiedOrderedDictListWithoutDuplicates)
 else:
     finalOrderedDictList = modifiedOrderedDictListWithoutDuplicates
 # for row in finalOrderedDictList:
@@ -166,11 +168,17 @@ for entry in finalOrderedDictList:
     entriesAfterMatchesRemoved +=1
 print("Number of entries in Employee Dojo List that are not already in QBO is {}".format(entriesAfterMatchesRemoved))
 
+qboEntriesAfterMatchesRemoved = 0
+for entry in qboFinalOrderedDictList:
+    print(entry['Customer'])
+    qboEntriesAfterMatchesRemoved +=1
+print("Number of entries in QBO Customer List that are not already in Employee Dojo is {}".format(qboEntriesAfterMatchesRemoved))
+
 if(entriesAfterMatchesRemoved != 0):
     #send the processed list to a csv file for importing into QBO
     #grab the tail of the infile
     infileTail = os.path.split(infile)[1]
-    outfileForQBOCustomers = infileTail.split(".")[0] + 'QBO' + '.csv'
+    outfileForQBOCustomers = infileTail.split(".")[0] + 'NotInQBO' + '.csv'
     outfilePathQBO = (os.path.join(os.path.expanduser('~'), 'Projects',
             'CodeNinjas','cnkCustomerParser', 'data', outfileForQBOCustomers))
     print(outfilePathQBO)
@@ -179,6 +187,21 @@ if(entriesAfterMatchesRemoved != 0):
             delimiter=',')
         fWriter.writeheader() #put the column headers in the csv
         for row in finalOrderedDictList:
+            fWriter.writerow(row)
+if(qboEntriesAfterMatchesRemoved != 0):
+    #send the processed list to a csv file for checking customer in QBO
+    #that are not in the Employee Dojo
+    #grab the tail of the infile
+    infileTail = os.path.split(infile)[1]
+    outfileForNotInDojoCustomers = infileTail.split(".")[0] + 'NotInDojo' + '.csv'
+    outfilePathNotInDojo = (os.path.join(os.path.expanduser('~'), 'Projects',
+            'CodeNinjas','cnkCustomerParser', 'data', outfileForNotInDojoCustomers))
+    print(outfilePathNotInDojo)
+    with open(outfilePathNotInDojo, 'w') as f:
+        fWriter = csv.DictWriter(f, fieldnames = customersQBO.expectedExportHeader,
+            delimiter=',')
+        fWriter.writeheader() #put the column headers in the csv
+        for row in qboFinalOrderedDictList:
             fWriter.writerow(row)
 
 #send the processed list to a csv file for Camp Only Ninjas
