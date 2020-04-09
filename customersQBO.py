@@ -25,3 +25,24 @@ def removeDuplicates(listOfOrderedDict):
         if(not isMatch):
             listWithoutDuplicates.append(row)
     return listWithoutDuplicates
+
+def removeMatches(qboList, employeeDojoList):
+    #build a list of OrderedDict objects that do not exist
+    #in the qboList
+    listWithoutMatches = []
+    for row in employeeDojoList:
+        #grab the next entry in the employeeDojoList
+        isMatch = False
+        #cycle through each record in the qboList
+        #until either the end of the list or if a match is found
+        for entry in qboList:
+            #first remove any extra spaces in the name fields
+            customer = entry['Customer'].replace(" ", "")
+            name = row['Name'].replace(" ", "")
+            if( customer == name):
+                isMatch = True
+                break #found a match so stop looking
+        #if match is still false, then add the record to the list
+        if(not isMatch):
+            listWithoutMatches.append(row)
+    return listWithoutMatches

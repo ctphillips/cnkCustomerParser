@@ -101,7 +101,7 @@ if isQBO:
             qboEntryCount+=1
             # if(entryCount == 1):
             #     print(entry)
-            qboOrderedDictList.append(entry)
+            qboOrderedDictList.append(qboEntry)
         print("There are {} entries in the QBO file".format(qboEntryCount))
     #Make sure the qbo header has the expected column headers
     isQBOHeaderOkay, errorQBOHeader = customersQBO.verifyHeader(qboHeader)
@@ -149,23 +149,40 @@ for entry in modifiedOrderedDictListWithoutDuplicates:
     entriesWithoutDuplicates +=1
     # if(entriesWithoutDuplicates != 0):
     #     print(entry["Name"])
-print("Number of entries after duplicates have been removed is {}".format(entriesWithoutDuplicates))
+print("Number of entries in Employee Dojo List after duplicates have been removed is {}".format(entriesWithoutDuplicates))
 
+if isQBO:
+    # for entry in qboOrderedDictList:
+    #     print(entry['Customer'])
+    finalOrderedDictList = customersQBO.removeMatches(qboOrderedDictList,
+        modifiedOrderedDictListWithoutDuplicates)
+else:
+    finalOrderedDictList = modifiedOrderedDictListWithoutDuplicates
+# for row in finalOrderedDictList:
+#     print(row)
+entriesAfterMatchesRemoved = 0
+for entry in finalOrderedDictList:
+    #print(entry['Name'])
+    entriesAfterMatchesRemoved +=1
+print("Number of entries in Employee Dojo List that are not already in QBO is {}".format(entriesAfterMatchesRemoved))
 
-#send the processed list to a csv file for importing into QBO
-outfileForQBOCustomers = infile.split(".")[0] + 'QBO' + '.csv'
-outfilePathQBO = (os.path.join(os.path.expanduser('~'), 'Projects',
+if(entriesAfterMatchesRemoved != 0):
+    #send the processed list to a csv file for importing into QBO
+    #grab the tail of the infile
+    infileTail = os.path.split(infile)[1]
+    outfileForQBOCustomers = infileTail.split(".")[0] + 'QBO' + '.csv'
+    outfilePathQBO = (os.path.join(os.path.expanduser('~'), 'Projects',
             'CodeNinjas','cnkCustomerParser', 'data', outfileForQBOCustomers))
-print(outfilePathQBO)
-with open(outfilePathQBO, 'w') as f:
-    fWriter = csv.DictWriter(f, fieldnames = customersQBO.expectedHeader,
-        delimiter=',')
-    fWriter.writeheader() #put the column headers in the csv
-    for row in modifiedOrderedDictListWithoutDuplicates:
-        fWriter.writerow(row)
+    print(outfilePathQBO)
+    with open(outfilePathQBO, 'w') as f:
+        fWriter = csv.DictWriter(f, fieldnames = customersQBO.expectedHeader,
+            delimiter=',')
+        fWriter.writeheader() #put the column headers in the csv
+        for row in finalOrderedDictList:
+            fWriter.writerow(row)
 
 #send the processed list to a csv file for Camp Only Ninjas
-outfileForCampOnly = infile.split(".")[0] + 'CampOnly' + '.csv'
+outfileForCampOnly = infileTail.split(".")[0] + 'CampOnly' + '.csv'
 outfilePathForCampOnly = (os.path.join(os.path.expanduser('~'), 'Projects',
             'CodeNinjas','cnkCustomerParser', 'data', outfileForCampOnly))
 print(outfilePathForCampOnly)
